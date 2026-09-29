@@ -18,7 +18,37 @@ export const seedDataset: TailingsDataset = {
     { id: 'RD-1', pointId: 'P-D01', value: 18.7, unit: 'mm', capturedAt: '2026-09-29T08:20:00', deviceId: 'GNSS-D01', quality: '有效' },
     { id: 'RD-2', pointId: 'P-D01', value: 16.2, unit: 'mm', capturedAt: '2026-09-29T07:20:00', deviceId: 'GNSS-D01', quality: '有效' },
     { id: 'RD-3', pointId: 'P-D01', value: 13.8, unit: 'mm', capturedAt: '2026-09-29T06:20:00', deviceId: 'GNSS-D01', quality: '有效' },
-    { id: 'RD-4', pointId: 'P-W01', value: 873.4, unit: 'm', capturedAt: '2026-09-29T07:55:00', deviceId: 'WL-W01', quality: '有效' }
+    { id: 'RD-4', pointId: 'P-W01', value: 873.4, unit: 'm', capturedAt: '2026-09-29T07:55:00', deviceId: 'WL-W01', quality: '有效' },
+    { id: 'RD-5', pointId: 'P-S01', value: 2.6, unit: 'L/s', capturedAt: '2026-09-29T08:30:00', deviceId: 'SEEP-S01', quality: '有效' }
+  ],
+  planVersions: [
+    {
+      id: 'MP-主坝-V1', zone: '主坝', version: 1, remark: '汛前常规监测', publishedBy: '负责人 何清', publishedAt: '2026-09-20T09:00:00',
+      items: [
+        { type: '位移', frequency: '每日1次', thresholdVersion: 3, dispositionVersion: 3 },
+        { type: '水位', frequency: '每日2次', thresholdVersion: 2, dispositionVersion: 2 },
+        { type: '渗流', frequency: '每日1次', thresholdVersion: 4, dispositionVersion: 4 },
+        { type: '降雨', frequency: '逐小时', thresholdVersion: 1, dispositionVersion: 1 }
+      ]
+    },
+    {
+      id: 'MP-主坝-V2', zone: '主坝', version: 2, remark: '汛期加密：位移逐2小时、渗流逐4小时', publishedBy: '负责人 何清', publishedAt: '2026-09-26T15:30:00',
+      items: [
+        { type: '位移', frequency: '每2小时1次', thresholdVersion: 4, dispositionVersion: 4 },
+        { type: '水位', frequency: '逐小时', thresholdVersion: 3, dispositionVersion: 3 },
+        { type: '渗流', frequency: '每4小时1次', thresholdVersion: 5, dispositionVersion: 5 },
+        { type: '降雨', frequency: '逐小时', thresholdVersion: 2, dispositionVersion: 2 }
+      ]
+    },
+    {
+      id: 'MP-库区-V1', zone: '库区', version: 1, remark: '汛前常规监测', publishedBy: '负责人 何清', publishedAt: '2026-09-20T09:05:00',
+      items: [
+        { type: '位移', frequency: '每日1次', thresholdVersion: 3, dispositionVersion: 3 },
+        { type: '水位', frequency: '每日2次', thresholdVersion: 2, dispositionVersion: 2 },
+        { type: '渗流', frequency: '每日1次', thresholdVersion: 4, dispositionVersion: 4 },
+        { type: '降雨', frequency: '逐小时', thresholdVersion: 1, dispositionVersion: 1 }
+      ]
+    }
   ],
   anomalies: [
     {
@@ -34,6 +64,11 @@ export const seedDataset: TailingsDataset = {
       id: 'AN-260929-02', pointId: 'P-W01', title: '库水位短时上升速率超预警值', severity: '较高', status: '原因调查中', openedAt: '2026-09-29T08:00:00', owner: '库区调度班', triggerReadingId: 'RD-4', observedValue: '873.4 m，1小时上升0.6 m', version: 4, closedAt: '',
       fieldReviews: [], opinions: [{ id: 'OP-3', specialist: '许洁', discipline: '水文', content: '上游降雨汇流导致入湖量增加，需核实泄洪闸状态。', conclusion: '支持结论', createdAt: '2026-09-29T09:00:00' }],
       plan: { id: 'PL-2', action: '加密监测', owner: '库区调度班', deadline: '2026-09-29T14:00:00', conditions: '每小时记录水位与入库流量，达到874.0m时启动应急联动。', emergencyLinked: false, approvedBy: '', approvedAt: '' }
+    },
+    {
+      id: 'AN-260929-03', pointId: 'P-S01', title: '主坝S01渗流量超预警，待现场复核', severity: '较高', status: '待现场复核', openedAt: '2026-09-29T08:35:00', owner: '坝体安全组', triggerReadingId: 'RD-5', observedValue: '2.6 L/s，预警值2.2 L/s', version: 1, closedAt: '',
+      fieldReviews: [], opinions: [],
+      plan: { id: 'PL-3', action: '加密监测', owner: '坝体安全组', deadline: '2026-09-29T18:00:00', conditions: '渗流量恢复至2.2 L/s以下并稳定后可申请关闭。', emergencyLinked: false, approvedBy: '', approvedAt: '' }
     }
   ],
   audit: [
