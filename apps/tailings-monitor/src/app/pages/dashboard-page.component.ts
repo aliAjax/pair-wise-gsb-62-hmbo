@@ -5,6 +5,7 @@ import { MatTableModule } from '@angular/material/table'
 import { Store } from '@ngrx/store'
 import { map } from 'rxjs'
 import { SpatialMapComponent } from '../components/spatial-map.component'
+import { latestPublishedPlan } from '../domain/plan-snapshot'
 import { selectAnomalies, selectDataset, selectPoints } from '../store/tailings.selectors'
 
 @Component({
@@ -31,6 +32,17 @@ import { selectAnomalies, selectDataset, selectPoints } from '../store/tailings.
           <tr mat-header-row *matHeaderRowDef="thresholdColumns"></tr><tr mat-row *matRowDef="let row; columns: thresholdColumns"></tr>
         </table>
       </div>
+      <div class="threshold-band">
+        <div><h2>分区监测计划当前执行版本</h2><p>汛期前调整经负责人发布后在此生效；异常进入现场复核时冻结对应版本，复测与关闭继续认冻结版。</p></div>
+        <div class="plan-cards">
+          <article *ngFor="let plan of latestPlans$ | async">
+            <div class="plan-head"><b>{{ plan.zone }} V{{ plan.version }}</b><span class="scope">{{ plan.changeScope }}</span></div>
+            <p class="reason">{{ plan.reason }}</p>
+            <div class="plan-item" *ngFor="let item of plan.items"><b>{{ item.type }}</b><span>{{ item.frequency }}</span><small>{{ item.dispositionBasis }}</small></div>
+            <small class="publisher">{{ plan.publishedBy }} · {{ plan.publishedAt.replace('T', ' ').slice(0, 16) }} 发布</small>
+          </article>
+        </div>
+      </div>
     </section>
   `,
   styles: [`
@@ -39,6 +51,7 @@ import { selectAnomalies, selectDataset, selectPoints } from '../store/tailings.
     .metrics article { padding: 17px 19px; border-right: 1px solid #e2e8e6; } .metrics article:last-child { border: 0; }
     .metrics span, .metrics strong, .metrics small { display: block; } .metrics span { color: #72807d; font-size: 12px; } .metrics strong { font-size: 27px; color: #245060; margin: 6px 0; } .metrics small { color: #98a4a0; font-size: 10px; }
     .threshold-band { background: white; border: 1px solid #d9e1df; margin-top: 15px; padding: 16px; } .threshold-band h2 { margin: 0 0 5px; font-size: 17px; } .threshold-band p { color: #72807d; font-size: 12px; margin: 0 0 12px; } table { width: 100%; }
+    .plan-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }.plan-cards article { border: 1px solid #dde4e2; background: #f8faf9; padding: 12px 14px; display: grid; gap: 6px; }.plan-head { display: flex; justify-content: space-between; align-items: center; }.plan-head b { color: #245060; font-size: 14px; }.scope { background: #e3edf8; color: #2b5d8f; font-size: 10px; padding: 2px 7px; border-radius: 3px; }.reason { margin: 0; color: #72807d; font-size: 11px; }.plan-item { display: grid; gap: 1px; border-top: 1px dashed #d7dddb; padding-top: 5px; }.plan-item b { font-size: 12px; }.plan-item span { font-size: 11px; color: #245060; }.plan-item small { font-size: 10px; color: #7c8986; }.publisher { color: #8a9491; }
   `]
 })
 export class DashboardPageComponent {
@@ -50,5 +63,9 @@ export class DashboardPageComponent {
   readonly abnormalCount$ = this.points$.pipe(map((points) => points.filter((point) => point.status !== '正常').length))
   readonly openAnomalyCount$ = this.anomalies$.pipe(map((items) => items.filter((item) => item.status !== '已关闭').length))
   readonly thresholdVersion$ = this.dataset$.pipe(map((dataset) => dataset.thresholds.reduce((sum, item) => sum + item.version, 0)))
+  readonly latestPlans$ = this.dataset$.pipe(map((dataset) => {
+    const zones = [...new Set(dataset.points.map((point) => point.zone))]
+    return zones.map((zone) => latestPublishedPlan(dataset.plans, zone)).filter((plan): plan is NonNullable<typeof plan> => !!plan)
+  }))
   readonly thresholdColumns = ['type', 'warning', 'alarm', 'rate', 'version']
 }
